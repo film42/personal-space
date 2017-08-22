@@ -18,7 +18,7 @@ type ServerContext struct {
 	block cipher.Block
 }
 
-func (sc *ServerContext) Upload(context echo.Context) error {
+func (sc *ServerContext) Set(context echo.Context) error {
 	request := context.Request()
 	if request.ContentLength < 1 {
 		return context.String(http.StatusInternalServerError, "Request payload is too small")
@@ -74,10 +74,11 @@ func (sc *ServerContext) Get(context echo.Context) error {
 	// Add this heder should we detect an image type. Let the browser decide.
 	context.Response().Header().Set("Content-Disposition", "inline")
 
-	// Detect the mime-type.
-	decryptedBuffer := bufio.NewReader(decryptedBody)
+	// Detect the mime-type. This bufio should only use the buffer to peek and the rest and
+	// after its been read it should read directly into the callers []byte.
+	decryptedBuffer := bufio.NewReaderSize(decryptedBody, 128)
 	peekedBytes, err := decryptedBuffer.Peek(128)
-	if err != nil {
+	if err != nil && peekedBytes == nil {
 		// Just fall back for now since we have the data.
 		peekedBytes = []byte{}
 	}
@@ -89,7 +90,7 @@ func (sc *ServerContext) Get(context echo.Context) error {
 
 func startServer(bind string, serverContext *ServerContext) {
 	server := echo.New()
-	server.POST("/upload", serverContext.Upload)
-	server.GET("/s/:hash", serverContext.Get)
+	server.POST("/set", serverContext.Set)
+	server.GET("/get/:hash", serverContext.Get)
 	server.Logger.Fatal(server.Start(bind))
 }
