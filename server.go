@@ -33,7 +33,7 @@ func (sc *ServerContext) Set(context echo.Context) error {
 	if _, err := io.ReadFull(rand.Reader, iv[:]); err != nil {
 		return context.String(http.StatusInternalServerError, err.Error())
 	}
-	ivReader := bytes.NewBuffer(iv[:])
+	ivReader := bytes.NewReader(iv[:])
 
 	// Wrap the body in a streaming OFB encryption block
 	stream := cipher.NewOFB(sc.block, iv[:])
