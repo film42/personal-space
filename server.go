@@ -40,12 +40,12 @@ func (sc *ServerContext) Upload(context echo.Context) error {
 	encryptedBody := &cipher.StreamReader{S: stream, R: body}
 	ivAndEncryptedBodyReader := io.MultiReader(ivReader, encryptedBody)
 
+	// Write the file to ipfs and get the hash back
 	hash, err := sc.shell.Add(ivAndEncryptedBodyReader)
 	if err != nil {
 		return context.String(http.StatusInternalServerError, err.Error())
 	}
 
-	// Write the file to ipfs and get the hash back
 	return context.String(http.StatusOK, hash)
 }
 
