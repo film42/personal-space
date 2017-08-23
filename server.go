@@ -14,14 +14,35 @@ import (
 )
 
 type ServerContext struct {
-	shell *ipfs.Shell
-	block cipher.Block
+	shell  *ipfs.Shell
+	block  cipher.Block
+	config *Config
+}
+
+func (sc *ServerContext) ListenAndServe() {
+	server := echo.New()
+	server.POST("/set", sc.Set)
+	server.GET("/get/:hash", sc.Get)
+
+	server.Logger.Fatal(server.Start(sc.config.Bind))
+}
+
+func (sc *ServerContext) isAuthenticated(context echo.Context) bool {
+	apiKey := context.Request().Header.Get("X-Api-Key")
+	if apiKey != sc.config.ApiKey {
+		return false
+	}
+	return true
 }
 
 func (sc *ServerContext) Set(context echo.Context) error {
+	if !sc.isAuthenticated(context) {
+		return context.NoContent(http.StatusUnauthorized)
+	}
+
 	request := context.Request()
 	if request.ContentLength < 1 {
-		return context.String(http.StatusInternalServerError, "Request payload is too small")
+		return context.String(http.StatusBadRequest, "Request payload is too small")
 	}
 
 	// Pull out the request body
@@ -86,11 +107,4 @@ func (sc *ServerContext) Get(context echo.Context) error {
 
 	// Let's send if over the wire.
 	return context.Stream(http.StatusOK, mimeType, decryptedBuffer)
-}
-
-func startServer(bind string, serverContext *ServerContext) {
-	server := echo.New()
-	server.POST("/set", serverContext.Set)
-	server.GET("/get/:hash", serverContext.Get)
-	server.Logger.Fatal(server.Start(bind))
 }

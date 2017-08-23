@@ -24,6 +24,12 @@ func main() {
 		os.Exit(1)
 	}
 
+	// Check api key
+	if len(config.ApiKey) == 0 {
+		fmt.Println("Error: Missing ApiKey")
+		os.Exit(1)
+	}
+
 	// Create local client to IPFS
 	shell := ipfs.NewLocalShell()
 
@@ -33,10 +39,11 @@ func main() {
 
 	// Create server context
 	serverContext := &ServerContext{
-		shell: shell,
-		block: block,
+		block:  block,
+		config: config,
+		shell:  shell,
 	}
 
 	// Let's go!
-	startServer(config.Bind, serverContext)
+	serverContext.ListenAndServe()
 }

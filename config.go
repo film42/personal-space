@@ -11,6 +11,7 @@ const defaultBind = ":9090"
 type Config struct {
 	Bind            string
 	OFBSymmetricKey string
+	ApiKey          string
 }
 
 func LoadConfig(path string) (*Config, error) {

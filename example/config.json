@@ -1,4 +1,5 @@
 {
+  "ApiKey": "super-secret-key-12345",
   "Bind": ":9090",
   "OFBSymmetricKey": "5700826c2d30468d8f6d3361abf9b591"
 }
