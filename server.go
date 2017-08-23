@@ -2,12 +2,7 @@ package main
 
 import (
 	"bufio"
-	"bytes"
-	"crypto/aes"
-	"crypto/cipher"
-	"crypto/rand"
 	"github.com/labstack/echo"
-	"io"
 	"net/http"
 
 	ipfs "github.com/ipfs/go-ipfs-api"
@@ -15,7 +10,7 @@ import (
 
 type ServerContext struct {
 	shell  *ipfs.Shell
-	block  cipher.Block
+	stream *Stream
 	config *Config
 }
 
@@ -49,20 +44,13 @@ func (sc *ServerContext) Set(context echo.Context) error {
 	body := request.Body
 	defer body.Close()
 
-	// Create a random IV for OFB
-	var iv [aes.BlockSize]byte
-	if _, err := io.ReadFull(rand.Reader, iv[:]); err != nil {
+	encryptedBodyReader, err := sc.stream.EncryptReader(body)
+	if err != nil {
 		return context.String(http.StatusInternalServerError, err.Error())
 	}
-	ivReader := bytes.NewReader(iv[:])
-
-	// Wrap the body in a streaming OFB encryption block
-	stream := cipher.NewOFB(sc.block, iv[:])
-	encryptedBody := &cipher.StreamReader{S: stream, R: body}
-	ivAndEncryptedBodyReader := io.MultiReader(ivReader, encryptedBody)
 
 	// Write the file to ipfs and get the hash back
-	hash, err := sc.shell.Add(ivAndEncryptedBodyReader)
+	hash, err := sc.shell.Add(encryptedBodyReader)
 	if err != nil {
 		return context.String(http.StatusInternalServerError, err.Error())
 	}
@@ -82,22 +70,17 @@ func (sc *ServerContext) Get(context echo.Context) error {
 	// TODO: Let's double check that context.Stream does not leave this function until done.
 	defer readCloser.Close()
 
-	// Read the IV from the IPFS reader.
-	var iv [aes.BlockSize]byte
-	if _, err := io.ReadFull(readCloser, iv[:]); err != nil {
+	decryptedBodyReader, err := sc.stream.DecryptReader(readCloser)
+	if err != nil {
 		return context.String(http.StatusInternalServerError, err.Error())
 	}
-
-	// Wrap the body in a streaming OFB encryption block
-	stream := cipher.NewOFB(sc.block, iv[:])
-	decryptedBody := &cipher.StreamReader{S: stream, R: readCloser}
 
 	// Add this heder should we detect an image type. Let the browser decide.
 	context.Response().Header().Set("Content-Disposition", "inline")
 
 	// Detect the mime-type. This bufio should only use the buffer to peek and the rest and
 	// after its been read it should read directly into the callers []byte.
-	decryptedBuffer := bufio.NewReaderSize(decryptedBody, 128)
+	decryptedBuffer := bufio.NewReaderSize(decryptedBodyReader, 128)
 	peekedBytes, err := decryptedBuffer.Peek(128)
 	if err != nil && peekedBytes == nil {
 		// Just fall back for now since we have the data.

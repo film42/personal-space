@@ -1,7 +1,6 @@
 package main
 
 import (
-	"crypto/aes"
 	"flag"
 	"fmt"
 	ipfs "github.com/ipfs/go-ipfs-api"
@@ -28,14 +27,17 @@ func main() {
 	shell := ipfs.NewLocalShell()
 
 	// Setup encryption key
-	key := []byte(config.OFBSymmetricKey)
-	block, _ := aes.NewCipher(key)
+	stream, err := NewStream(config.OFBSymmetricKey)
+	if err != nil {
+		fmt.Println("Error building encryption stream:", err)
+		os.Exit(1)
+	}
 
 	// Create server context
 	serverContext := &ServerContext{
-		block:  block,
 		config: config,
 		shell:  shell,
+		stream: stream,
 	}
 
 	// Let's go!
