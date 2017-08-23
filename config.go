@@ -30,6 +30,10 @@ func LoadConfig(path string) (*Config, error) {
 		return nil, errors.New("Config is missing a OFBSymmetricKey")
 	}
 
+	if len(config.ApiKey) == 0 {
+		return nil, errors.New("Config is missing a Missing ApiKey")
+	}
+
 	if len(config.Bind) == 0 {
 		config.Bind = defaultBind
 	}
