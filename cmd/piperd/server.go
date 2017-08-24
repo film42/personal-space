@@ -2,17 +2,17 @@ package main
 
 import (
 	"bufio"
+	"github.com/film42/piper"
+	ipfs "github.com/ipfs/go-ipfs-api"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"net/http"
-
-	ipfs "github.com/ipfs/go-ipfs-api"
 )
 
 type ServerContext struct {
 	shell  *ipfs.Shell
-	stream *Stream
-	config *Config
+	stream *piper.Stream
+	config *piper.Config
 }
 
 func (sc *ServerContext) ListenAndServe() {

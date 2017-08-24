@@ -1,4 +1,4 @@
-package main
+package piper
 
 import (
 	"encoding/json"
@@ -27,11 +27,11 @@ func LoadConfig(path string) (*Config, error) {
 	}
 
 	if len(config.OFBSymmetricKey) == 0 {
-		return nil, errors.New("Config is missing a OFBSymmetricKey")
+		return config, errors.New("Config is missing a OFBSymmetricKey")
 	}
 
 	if len(config.ApiKey) == 0 {
-		return nil, errors.New("Config is missing a Missing ApiKey")
+		return config, errors.New("Config is missing a Missing ApiKey")
 	}
 
 	if len(config.Bind) == 0 {

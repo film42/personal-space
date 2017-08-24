@@ -1,4 +1,4 @@
-package main
+package piper
 
 import (
 	"bytes"
