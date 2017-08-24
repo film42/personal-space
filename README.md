@@ -18,8 +18,14 @@ BTW, this is an alpha project. Don't use this with real data. Expect many breaki
 
 ### Building
 
+For the CLI tool:
 ```
-$ go get github.com/film42/piper
+$ go get github.com/film42/piper/cmd/piper
+```
+
+For the server:
+```
+$ go get github.com/film42/piper/cmd/piperd
 ```
 
 ### CLI Usage
@@ -30,14 +36,14 @@ Usage of ./piper:
         Path to config file.
   -set string
         Path to file to SET.
-  -start-server
-        Start a gateway server accepting POST / GET requests.
 ```
 
-You can use `piper` as CLI tool for uploading a file. This is IPFS after all, why make the server do both? ;)
-The server is not started by default, so you'll need to do that with the `--start-server` option.
-
 ### Server Usage
+```
+Usage of ./piperd:
+  -config string
+        Path to config file.
+```
 
 ```
 $ curl -X POST -H "X-Api-Key: 12345" localhost:9090/set -d "plz don't tell anyone about my gif collection"
