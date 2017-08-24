@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 	"net/http"
 
 	ipfs "github.com/ipfs/go-ipfs-api"
@@ -18,6 +19,10 @@ func (sc *ServerContext) ListenAndServe() {
 	server := echo.New()
 	server.POST("/set", sc.Set)
 	server.GET("/get/:hash", sc.Get)
+
+	server.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
+		Format: "[${time_rfc3339}] method=${method}, uri=${uri}, status=${status}, bytes_in=${bytes_in}, bytes_out=${bytes_out}\n",
+	}))
 
 	server.Logger.Fatal(server.Start(sc.config.Bind))
 }
