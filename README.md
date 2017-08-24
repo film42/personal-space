@@ -1,9 +1,8 @@
-Personal Space
-==============
+Piper
+=====
 
 This is a tiny project that sets up a encryption/ decryption proxy between you and IPFS. To the world your files are
-random bytes, but to you, your data is private AF. Sometimes you just need a little personal space, you know? The
-project name is a work-in-progress.
+random bytes, but to you, your data is private AF. Finally a way to store your data privately on the new internet.
 
 BTW, this is an alpha project. Don't use this with real data. Expect many breaking changes.
 
@@ -20,13 +19,13 @@ BTW, this is an alpha project. Don't use this with real data. Expect many breaki
 ### Building
 
 ```
-$ go get github.com/film42/personal-space
+$ go get github.com/film42/piper
 ```
 
 ### CLI Usage
 ```
-./personal-space --help
-Usage of ./personal-space:
+./piper --help
+Usage of ./piper:
   -config string
         Path to config file.
   -set string
@@ -35,7 +34,7 @@ Usage of ./personal-space:
         Start a gateway server accepting POST / GET requests.
 ```
 
-You can use `personal-space` as CLI tool for uploading a file. This is IPFS after all, why make the server do both? ;)
+You can use `piper` as CLI tool for uploading a file. This is IPFS after all, why make the server do both? ;)
 The server is not started by default, so you'll need to do that with the `--start-server` option.
 
 ### Server Usage
