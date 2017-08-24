@@ -64,7 +64,7 @@ func (s *Stream) DecryptReader(src io.Reader) (io.Reader, error) {
 	}
 
 	// HACK: This is not a good way to ensure the gzip reader is closed.
-	closeOnReaderEOF := NewCloseOnReaderEOF(decompressReader)
+	closeOnReaderEOF := newCloseOnReaderEOF(decompressReader)
 
 	return closeOnReaderEOF, nil
 }
